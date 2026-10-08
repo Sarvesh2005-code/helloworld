@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>OrderFlow - Real-Time Order Processing</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            font-family:
+                    Inter,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    Arial,
+                    sans-serif;
+
+            background: #f5f7fb;
+
+            color: #172033;
+
+            min-height: 100vh;
+        }
+
+
+        /* ==============================
+           HEADER
+        ============================== */
+
+        header {
+
+            height: 70px;
+
+            background: white;
+
+            border-bottom:
+                    1px solid #e5e7eb;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 40px;
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 100;
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .logo {
+
+            width: 40px;
+
+            height: 40px;
+
+            background: #111827;
+
+            color: white;
+
+            border-radius: 11px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 19px;
+        }
+
+
+        .brand h2 {
+
+            font-size: 20px;
+        }
+
+
+        /* ==============================
+           CONNECTION
+        ============================== */
+
+        .connection {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+            background: #ecfdf5;
+
+            color: #047857;
+
+            font-size: 13px;
+
+            font-weight: 600;
+        }
+
+
+        .connection-dot {
+
+            width: 9px;
+
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #10b981;
+        }
+
+
+        .disconnected {
+
+            background: #fef2f2;
+
+            color: #dc2626;
+        }
+
+
+        .disconnected .connection-dot {
+
+            background: #ef4444;
+        }
+
+
+        /* ==============================
+           MAIN
+        ============================== */
+
+        main {
+
+            max-width: 1400px;
+
+            margin: auto;
+
+            padding: 35px 40px 60px;
+        }
+
+
+        .welcome {
+
+            margin-bottom: 28px;
+        }
+
+
+        .welcome h1 {
+
+            font-size: 30px;
+
+            margin-bottom: 8px;
+        }
+
+
+        .welcome p {
+
+            color: #6b7280;
+
+            font-size: 15px;
+        }
+
+
+        /* ==============================
+           STATS
+        ============================== */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 18px;
+
+            margin-bottom: 25px;
+        }
+
+
+        .stat {
+
+            background: white;
+
+            padding: 22px;
+
+            border:
+                    1px solid #e5e7eb;
+
+            border-radius: 15px;
+        }
+
+
+        .stat-title {
+
+            color: #6b7280;
+
+            font-size: 13px;
+
+            margin-bottom: 9px;
+        }
+
+
+        .stat-value {
+
+            font-size: 28px;
+
+            font-weight: 700;
+        }
+
+
+        /* ==============================
+           DASHBOARD
+        ============================== */
+
+        .dashboard {
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1fr) 350px;
+
+            gap: 25px;
+        }
+
+
+        .card {
+
+            background: white;
+
+            border:
+                    1px solid #e5e7eb;
+
+            border-radius: 16px;
+
+            padding: 25px;
+        }
+
+
+        .card-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+
+        .card-header h2 {
+
+            font-size: 18px;
+        }
+
+
+        /* ==============================
+           FORM
+        ============================== */
+
+        .form {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr 100px auto;
+
+            gap: 10px;
+
+            margin-bottom: 30px;
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border:
+                    1px solid #d1d5db;
+
+            border-radius: 9px;
+
+            outline: none;
+
+            font-size: 14px;
+        }
+
+
+        input:focus {
+
+            border-color: #6366f1;
+
+            box-shadow:
+                    0 0 0 3px
+                    rgba(99, 102, 241, 0.1);
+        }
+
+
+        button {
+
+            border: none;
+
+            background: #111827;
+
+            color: white;
+
+            padding: 12px 18px;
+
+            border-radius: 9px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        button:hover {
+
+            background: #374151;
+        }
+
+
+        button:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+        }
+
+
+        /* ==============================
+           ORDERS
+        ============================== */
+
+        #orders {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+        }
+
+
+        .order {
+
+            border:
+                    1px solid #e5e7eb;
+
+            border-radius: 13px;
+
+            padding: 18px;
+
+            animation:
+                    orderIn 0.3s ease;
+        }
+
+
+        @keyframes orderIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                        translateY(-5px);
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                        translateY(0);
+            }
+        }
+
+
+        .order-top {
+
+            display: flex;
+
+            justify-content:
+                    space-between;
+
+            align-items: center;
+
+            margin-bottom: 15px;
+        }
+
+
+        .order-id {
+
+            font-weight: 700;
+        }
+
+
+        .order-info {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            margin-bottom: 20px;
+        }
+
+
+        .info-label {
+
+            color: #9ca3af;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            margin-bottom: 4px;
+        }
+
+
+        /* ==============================
+           STATUS
+        ============================== */
+
+        .status {
+
+            padding: 6px 10px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+
+        .pending {
+
+            background: #fff7ed;
+
+            color: #c2410c;
+        }
+
+
+        .inventory_check {
+
+            background: #f5f3ff;
+
+            color: #7c3aed;
+        }
+
+
+        .payment_verification {
+
+            background: #eff6ff;
+
+            color: #2563eb;
+        }
+
+
+        .confirmed {
+
+            background: #ecfdf5;
+
+            color: #059669;
+        }
+
+
+        .failed {
+
+            background: #fef2f2;
+
+            color: #dc2626;
+        }
+
+
+        /* ==============================
+           TIMELINE
+        ============================== */
+
+        .timeline {
+
+            display: flex;
+
+            align-items: center;
+
+            width: 100%;
+        }
+
+
+        .step {
+
+            display: flex;
+
+            align-items: center;
+
+            min-width: fit-content;
+        }
+
+
+        .circle {
+
+            width: 25px;
+
+            height: 25px;
+
+            border-radius: 50%;
+
+            background: #e5e7eb;
+
+            color: #6b7280;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 10px;
+
+            font-weight: 700;
+        }
+
+
+        .step.active .circle {
+
+            background: #111827;
+
+            color: white;
+        }
+
+
+        .line {
+
+            height: 2px;
+
+            flex: 1;
+
+            background: #e5e7eb;
+
+            margin: 0 6px;
+        }
+
+
+        .line.active {
+
+            background: #111827;
+        }
+
+
+        .step-label {
+
+            font-size: 9px;
+
+            color: #6b7280;
+
+            margin-left: 5px;
+        }
+
+
+        .step.active .step-label {
+
+            color: #111827;
+
+            font-weight: 600;
+        }
+
+
+        /* ==============================
+           ACTIVITY
+        ============================== */
+
+        #notifications {
+
+            max-height: 520px;
+
+            overflow-y: auto;
+        }
+
+
+        .notification {
+
+            padding: 14px 0;
+
+            border-bottom:
+                    1px solid #f0f0f0;
+
+            font-size: 13px;
+        }
+
+
+        .notification strong {
+
+            display: block;
+
+            margin-bottom: 4px;
+        }
+
+
+        .notification small {
+
+            color: #9ca3af;
+        }
+
+
+        /* ==============================
+           EMPTY
+        ============================== */
+
+        .empty {
+
+            text-align: center;
+
+            padding: 45px 20px;
+
+            color: #9ca3af;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+
+        /* ==============================
+           TOAST
+        ============================== */
+
+        #toast-container {
+
+            position: fixed;
+
+            top: 85px;
+
+            right: 25px;
+
+            width: 350px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+            z-index: 9999;
+        }
+
+
+        .toast {
+
+            background: white;
+
+            border:
+                    1px solid #e5e7eb;
+
+            border-left:
+                    4px solid #111827;
+
+            border-radius: 12px;
+
+            padding:
+                    16px 40px 16px 17px;
+
+            box-shadow:
+                    0 12px 35px
+                    rgba(0, 0, 0, 0.14);
+
+            position: relative;
+
+            animation:
+                    toastIn 0.3s ease;
+        }
+
+
+        .toast.pending {
+
+            border-left-color: #f97316;
+        }
+
+
+        .toast.inventory_check {
+
+            border-left-color: #8b5cf6;
+        }
+
+
+        .toast.payment_verification {
+
+            border-left-color: #3b82f6;
+        }
+
+
+        .toast.confirmed {
+
+            border-left-color: #10b981;
+        }
+
+
+        .toast.failed {
+
+            border-left-color: #ef4444;
+        }
+
+
+        .toast-title {
+
+            font-weight: 700;
+
+            font-size: 14px;
+
+            margin-bottom: 5px;
+        }
+
+
+        .toast-message {
+
+            font-size: 13px;
+
+            color: #6b7280;
+
+            line-height: 1.4;
+        }
+
+
+        .toast-time {
+
+            font-size: 11px;
+
+            color: #9ca3af;
+
+            margin-top: 7px;
+        }
+
+
+        .toast-close {
+
+            position: absolute;
+
+            top: 8px;
+
+            right: 9px;
+
+            background: transparent;
+
+            color: #9ca3af;
+
+            border: none;
+
+            padding: 3px;
+
+            font-size: 18px;
+
+            cursor: pointer;
+        }
+
+
+        @keyframes toastIn {
+
+            from {
+
+                opacity: 0;
+
+                transform:
+                        translateX(35px);
+            }
+
+            to {
+
+                opacity: 1;
+
+                transform:
+                        translateX(0);
+            }
+        }
+
+
+        @keyframes toastOut {
+
+            from {
+
+                opacity: 1;
+
+                transform:
+                        translateX(0);
+            }
+
+            to {
+
+                opacity: 0;
+
+                transform:
+                        translateX(35px);
+            }
+        }
+
+
+        /* ==============================
+           RESPONSIVE
+        ============================== */
+
+        @media (max-width: 1050px) {
+
+            .dashboard {
+
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 850px) {
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+
+            .form {
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            header {
+
+                padding: 0 20px;
+            }
+
+
+            main {
+
+                padding:
+                        25px 20px;
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .form {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .order-info {
+
+                grid-template-columns:
+                    1fr;
+
+                gap: 10px;
+            }
+
+
+            #toast-container {
+
+                left: 15px;
+
+                right: 15px;
+
+                width: auto;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     TOAST NOTIFICATIONS
+=========================================== -->
+
+<div id="toast-container"></div>
+
+
+
+<!-- ==========================================
+     HEADER
+=========================================== -->
+
+<header>
+
+
+    <div class="brand">
+
+
+        <div class="logo">
+            ⚡
+        </div>
+
+
+        <h2>
+            OrderFlow
+        </h2>
+
+
+    </div>
+
+
+
+    <div
+            id="connection"
+            class="connection"
+    >
+
+        <span
+                class="connection-dot"
+        ></span>
+
+
+        <span id="connectionText">
+            Connecting...
+        </span>
+
+    </div>
+
+
+</header>
+
+
+
+<!-- ==========================================
+     MAIN
+=========================================== -->
+
+<main>
+
+
+    <div class="welcome">
+
+        <h1>
+            Real-Time Order Processing
+        </h1>
+
+        <p>
+            Track inventory, payment verification
+            and order confirmation in real time.
+        </p>
+
+    </div>
+
+
+
+    <!-- ======================================
+         STATISTICS
+    ======================================= -->
+
+    <div class="stats">
+
+
+        <div class="stat">
+
+            <div class="stat-title">
+                Total Orders
+            </div>
+
+            <div
+                    id="totalOrders"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+
+        <div class="stat">
+
+            <div class="stat-title">
+                Pending
+            </div>
+
+            <div
+                    id="pendingOrders"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+
+        <div class="stat">
+
+            <div class="stat-title">
+                Processing
+            </div>
+
+            <div
+                    id="processingOrders"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+
+        <div class="stat">
+
+            <div class="stat-title">
+                Confirmed
+            </div>
+
+            <div
+                    id="confirmedOrders"
+                    class="stat-value"
+            >
+                0
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- ======================================
+         DASHBOARD
+    ======================================= -->
+
+    <div class="dashboard">
+
+
+        <!-- ==================================
+             ORDERS
+        =================================== -->
+
+        <div class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Create Order
+                </h2>
+
+            </div>
+
+
+            <div class="form">
+
+
+                <input
+                        id="customer"
+                        placeholder="Customer name"
+                >
+
+
+                <input
+                        id="product"
+                        placeholder="Product name"
+                >
+
+
+                <input
+                        id="quantity"
+                        type="number"
+                        min="1"
+                        value="1"
+                >
+
+
+                <button
+                        id="placeButton"
+                        onclick="createOrder()"
+                >
+
+                    Place Order
+
+                </button>
+
+
+            </div>
+
+
+
+            <div class="card-header">
+
+                <h2>
+                    Live Orders
+                </h2>
+
+            </div>
+
+
+            <div id="orders">
+
+
+                <div class="empty">
+
+                    No orders yet.<br>
+
+                    Create your first order above.
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ==================================
+             ACTIVITY
+        =================================== -->
+
+        <div class="card">
+
+
+            <div class="card-header">
+
+                <h2>
+                    Live Activity
+                </h2>
+
+            </div>
+
+
+            <div id="notifications">
+
+
+                <div class="empty">
+
+                    Waiting for activity...
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+
+<script>
+
+
+    /* ==========================================
+       STATE
+    =========================================== */
+
+    const orders = new Map();
+
+    let socket;
+
+
+
+    /* ==========================================
+       CREATE ORDER
+    =========================================== */
+
+    async function createOrder() {
+
+
+        const customer =
+            document
+                .getElementById("customer")
+                .value
+                .trim();
+
+
+        const product =
+            document
+                .getElementById("product")
+                .value
+                .trim();
+
+
+        const quantity =
+            Number(
+                document
+                    .getElementById("quantity")
+                    .value
+            );
+
+
+        if (
+            !customer ||
+            !product ||
+            quantity < 1
+        ) {
+
+            showSimpleToast(
+                "Invalid Order",
+                "Please enter valid order details.",
+                "FAILED"
+            );
+
+            return;
+        }
+
+
+        const button =
+            document.getElementById(
+                "placeButton"
+            );
+
+
+        button.disabled = true;
+
+        button.innerText =
+            "Creating...";
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/api/orders",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                customerName:
+                                customer,
+
+                                productName:
+                                product,
+
+                                quantity:
+                                quantity
+
+                            })
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to create order"
+                );
+            }
+
+
+            const order =
+                await response.json();
+
+
+            renderOrUpdateOrder(
+                order
+            );
+
+
+            document.getElementById(
+                "customer"
+            ).value = "";
+
+
+            document.getElementById(
+                "product"
+            ).value = "";
+
+
+            document.getElementById(
+                "quantity"
+            ).value = 1;
+
+
+        }
+        catch (error) {
+
+
+            console.error(error);
+
+
+            showSimpleToast(
+                "Order Failed",
+                error.message,
+                "FAILED"
+            );
+
+        }
+
+
+        button.disabled = false;
+
+        button.innerText =
+            "Place Order";
+
+    }
+
+
+
+    /* ==========================================
+       RENDER ORDER
+    =========================================== */
+
+    function renderOrUpdateOrder(
+        order
+    ) {
+
+
+        const previousOrder =
+            orders.get(order.id);
+
+
+        orders.set(
+            order.id,
+            order
+        );
+
+
+        let div =
+            document.getElementById(
+                "order-" +
+                order.id
+            );
+
+
+        if (!div) {
+
+
+            const empty =
+                document
+                    .getElementById("orders")
+                    .querySelector(".empty");
+
+
+            if (empty) {
+
+                empty.remove();
+
+            }
+
+
+            div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "order";
+
+
+            div.id =
+                "order-" +
+                order.id;
+
+
+            document
+                .getElementById("orders")
+                .prepend(div);
+
+        }
+
+
+        div.innerHTML = `
+
+        <div class="order-top">
+
+            <div class="order-id">
+
+                Order #${order.id}
+
+            </div>
+
+
+            <span
+                class="
+                    status
+                    ${getStatusClass(
+            order.status
+        )}
+                "
+            >
+
+                ${formatStatus(
+            order.status
+        )}
+
+            </span>
+
+        </div>
+
+
+        <div class="order-info">
+
+
+            <div>
+
+                <div class="info-label">
+                    CUSTOMER
+                </div>
+
+                <strong>
+                    ${escapeHtml(
+            order.customerName
+        )}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <div class="info-label">
+                    PRODUCT
+                </div>
+
+                <strong>
+                    ${escapeHtml(
+            order.productName
+        )}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <div class="info-label">
+                    QUANTITY
+                </div>
+
+                <strong>
+                    ${order.quantity}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+        ${createTimeline(
+            order.status
+        )}
+
+    `;
+
+
+        updateStats();
+
+
+        /*
+         * Only notify if this is a new order
+         * or the status has changed.
+         */
+
+        if (
+            !previousOrder
+        ) {
+
+            if (
+                order.status ===
+                "PENDING"
+            ) {
+
+                addNotification(
+                    order
+                );
+
+            }
+
+        }
+        else if (
+            previousOrder.status !==
+            order.status
+        ) {
+
+            addNotification(
+                order
+            );
+
+        }
+
+    }
+
+
+
+    /* ==========================================
+       FORMAT STATUS
+    =========================================== */
+
+    function formatStatus(
+        status
+    ) {
+
+
+        return status
+            .replaceAll(
+                "_",
+                " "
+            );
+
+    }
+
+
+
+    /* ==========================================
+       STATUS CLASS
+    =========================================== */
+
+    function getStatusClass(
+        status
+    ) {
+
+        return status
+            .toLowerCase();
+
+    }
+
+
+
+    /* ==========================================
+       TIMELINE
+    =========================================== */
+
+    function createTimeline(
+        status
+    ) {
+
+
+        const pending =
+            [
+                "PENDING",
+                "INVENTORY_CHECK",
+                "PAYMENT_VERIFICATION",
+                "CONFIRMED"
+            ].includes(status);
+
+
+        const inventory =
+            [
+                "INVENTORY_CHECK",
+                "PAYMENT_VERIFICATION",
+                "CONFIRMED"
+            ].includes(status);
+
+
+        const payment =
+            [
+                "PAYMENT_VERIFICATION",
+                "CONFIRMED"
+            ].includes(status);
+
+
+        const confirmed =
+            status ===
+            "CONFIRMED";
+
+
+        if (
+            status ===
+            "FAILED"
+        ) {
+
+            return `
+
+            <div class="timeline">
+
+                <div class="step active">
+
+                    <div class="circle">
+                        ✓
+                    </div>
+
+                    <span class="step-label">
+                        Failed
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+        }
+
+
+        return `
+
+        <div class="timeline">
+
+
+            <div
+                class="
+                    step
+                    ${pending
+            ? "active"
+            : ""}
+                "
+            >
+
+                <div class="circle">
+                    1
+                </div>
+
+                <span class="step-label">
+                    Pending
+                </span>
+
+            </div>
+
+
+            <div
+                class="
+                    line
+                    ${inventory
+            ? "active"
+            : ""}
+                "
+            ></div>
+
+
+            <div
+                class="
+                    step
+                    ${inventory
+            ? "active"
+            : ""}
+                "
+            >
+
+                <div class="circle">
+                    2
+                </div>
+
+                <span class="step-label">
+                    Inventory
+                </span>
+
+            </div>
+
+
+            <div
+                class="
+                    line
+                    ${payment
+            ? "active"
+            : ""}
+                "
+            ></div>
+
+
+            <div
+                class="
+                    step
+                    ${payment
+            ? "active"
+            : ""}
+                "
+            >
+
+                <div class="circle">
+                    3
+                </div>
+
+                <span class="step-label">
+                    Payment
+                </span>
+
+            </div>
+
+
+            <div
+                class="
+                    line
+                    ${confirmed
+            ? "active"
+            : ""}
+                "
+            ></div>
+
+
+            <div
+                class="
+                    step
+                    ${confirmed
+            ? "active"
+            : ""}
+                "
+            >
+
+                <div class="circle">
+                    4
+                </div>
+
+                <span class="step-label">
+                    Confirmed
+                </span>
+
+            </div>
+
+
+        </div>
+
+    `;
+
+    }
+
+
+
+    /* ==========================================
+       ACTIVITY NOTIFICATION
+    =========================================== */
+
+    function addNotification(
+        order
+    ) {
+
+
+        const container =
+            document.getElementById(
+                "notifications"
+            );
+
+
+        const empty =
+            container.querySelector(
+                ".empty"
+            );
+
+
+        if (empty) {
+
+            empty.remove();
+
+        }
+
+
+        const time =
+            new Date()
+                .toLocaleTimeString();
+
+
+        const activity =
+            document.createElement(
+                "div"
+            );
+
+
+        activity.className =
+            "notification";
+
+
+        activity.innerHTML = `
+
+        <strong>
+
+            Order #${order.id}
+            → ${formatStatus(
+            order.status
+        )}
+
+        </strong>
+
+
+        <small>
+
+            ${escapeHtml(
+            order.productName
+        )}
+
+            · ${time}
+
+        </small>
+
+    `;
+
+
+        container.prepend(
+            activity
+        );
+
+
+        while (
+            container.children.length >
+            15
+            ) {
+
+            container.removeChild(
+                container.lastChild
+            );
+
+        }
+
+
+        showToast(
+            order
+        );
+
+    }
+
+
+
+    /* ==========================================
+       TOAST
+    =========================================== */
+
+    function showToast(
+        order
+    ) {
+
+
+        const container =
+            document.getElementById(
+                "toast-container"
+            );
+
+
+        const toast =
+            document.createElement(
+                "div"
+            );
+
+
+        toast.className =
+            "toast " +
+            getStatusClass(
+                order.status
+            );
+
+
+        let message;
+
+
+        switch (
+            order.status
+            ) {
+
+
+            case "PENDING":
+
+                message =
+                    "Your order has been received.";
+
+                break;
+
+
+            case "INVENTORY_CHECK":
+
+                message =
+                    "Checking product availability.";
+
+                break;
+
+
+            case "PAYMENT_VERIFICATION":
+
+                message =
+                    "Inventory is available. Verifying payment.";
+
+                break;
+
+
+            case "CONFIRMED":
+
+                message =
+                    "Order confirmed successfully.";
+
+                break;
+
+
+            case "FAILED":
+
+                message =
+                    "Order could not be processed.";
+
+                break;
+
+
+            default:
+
+                message =
+                    "Order status updated.";
+
+        }
+
+
+        toast.innerHTML = `
+
+        <button
+            class="toast-close"
+            onclick="closeToast(this)"
+        >
+            ×
+        </button>
+
+
+        <div class="toast-title">
+
+            🔔 Order #${order.id}
+            Updated
+
+        </div>
+
+
+        <div class="toast-message">
+
+            ${message}
+
+        </div>
+
+
+        <div class="toast-time">
+
+            Status:
+            ${formatStatus(
+            order.status
+        )}
+
+        </div>
+
+    `;
+
+
+        container.appendChild(
+            toast
+        );
+
+
+        setTimeout(
+            function () {
+
+
+                if (
+                    toast.parentElement
+                ) {
+
+                    closeToast(
+                        toast.querySelector(
+                            ".toast-close"
+                        )
+                    );
+
+                }
+
+            },
+            4500
+        );
+
+    }
+
+
+
+    /* ==========================================
+       SIMPLE TOAST
+    =========================================== */
+
+    function showSimpleToast(
+        title,
+        message,
+        status
+    ) {
+
+
+        const container =
+            document.getElementById(
+                "toast-container"
+            );
+
+
+        const toast =
+            document.createElement(
+                "div"
+            );
+
+
+        toast.className =
+            "toast " +
+            getStatusClass(
+                status
+            );
+
+
+        toast.innerHTML = `
+
+        <button
+            class="toast-close"
+            onclick="closeToast(this)"
+        >
+            ×
+        </button>
+
+
+        <div class="toast-title">
+
+            ${title}
+
+        </div>
+
+
+        <div class="toast-message">
+
+            ${message}
+
+        </div>
+
+    `;
+
+
+        container.appendChild(
+            toast
+        );
+
+
+        setTimeout(
+            function () {
+
+                if (
+                    toast.parentElement
+                ) {
+
+                    closeToast(
+                        toast.querySelector(
+                            ".toast-close"
+                        )
+                    );
+
+                }
+
+            },
+            4000
+        );
+
+    }
+
+
+
+    /* ==========================================
+       CLOSE TOAST
+    =========================================== */
+
+    function closeToast(
+        button
+    ) {
+
+
+        const toast =
+            button.parentElement;
+
+
+        toast.style.animation =
+            "toastOut 0.3s ease forwards";
+
+
+        setTimeout(
+            function () {
+
+                toast.remove();
+
+            },
+            300
+        );
+
+    }
+
+
+
+    /* ==========================================
+       STATISTICS
+    =========================================== */
+
+    function updateStats() {
+
+
+        const allOrders =
+            Array.from(
+                orders.values()
+            );
+
+
+        document.getElementById(
+            "totalOrders"
+        ).innerText =
+            allOrders.length;
+
+
+        document.getElementById(
+            "pendingOrders"
+        ).innerText =
+            allOrders.filter(
+                order =>
+                    order.status ===
+                    "PENDING"
+            ).length;
+
+
+        document.getElementById(
+            "processingOrders"
+        ).innerText =
+            allOrders.filter(
+                order =>
+                    order.status ===
+                    "INVENTORY_CHECK" ||
+                    order.status ===
+                    "PAYMENT_VERIFICATION"
+            ).length;
+
+
+        document.getElementById(
+            "confirmedOrders"
+        ).innerText =
+            allOrders.filter(
+                order =>
+                    order.status ===
+                    "CONFIRMED"
+            ).length;
+
+    }
+
+
+
+    /* ==========================================
+       WEBSOCKET
+    =========================================== */
+
+    function connectWebSocket() {
+
+
+        socket =
+            new WebSocket(
+                "ws://" +
+                window.location.host +
+                "/ws"
+            );
+
+
+        socket.onopen =
+            function () {
+
+                console.log(
+                    "WebSocket connected"
+                );
+
+
+                setConnectionStatus(
+                    true
+                );
+
+            };
+
+
+        socket.onmessage =
+            function (event) {
+
+
+                console.log(
+                    "WebSocket event:",
+                    event.data
+                );
+
+
+                try {
+
+
+                    const order =
+                        JSON.parse(
+                            event.data
+                        );
+
+
+                    renderOrUpdateOrder(
+                        order
+                    );
+
+
+                }
+                catch (error) {
+
+
+                    console.error(
+                        "Invalid WebSocket message:",
+                        error
+                    );
+
+                }
+
+            };
+
+
+        socket.onclose =
+            function () {
+
+
+                console.log(
+                    "WebSocket disconnected"
+                );
+
+
+                setConnectionStatus(
+                    false
+                );
+
+
+                setTimeout(
+                    connectWebSocket,
+                    3000
+                );
+
+            };
+
+
+        socket.onerror =
+            function () {
+
+                setConnectionStatus(
+                    false
+                );
+
+            };
+
+    }
+
+
+
+    /* ==========================================
+       CONNECTION STATUS
+    =========================================== */
+
+    function setConnectionStatus(
+        connected
+    ) {
+
+
+        const element =
+            document.getElementById(
+                "connection"
+            );
+
+
+        const text =
+            document.getElementById(
+                "connectionText"
+            );
+
+
+        if (connected) {
+
+
+            element.classList.remove(
+                "disconnected"
+            );
+
+
+            text.innerText =
+                "Connected";
+
+
+        }
+        else {
+
+
+            element.classList.add(
+                "disconnected"
+            );
+
+
+            text.innerText =
+                "Disconnected";
+
+        }
+
+    }
+
+
+
+    /* ==========================================
+       LOAD EXISTING ORDERS
+    =========================================== */
+
+    async function loadOrders() {
+
+
+        try {
+
+
+            const response =
+                await fetch(
+                    "/api/orders"
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load orders"
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            data.forEach(
+                function (order) {
+
+                    renderOrUpdateOrder(
+                        order
+                    );
+
+                }
+            );
+
+
+        }
+        catch (error) {
+
+
+            console.error(
+                "Could not load orders:",
+                error
+            );
+
+        }
+
+    }
+
+
+
+    /* ==========================================
+       ESCAPE HTML
+    =========================================== */
+
+    function escapeHtml(
+        value
+    ) {
+
+
+        return String(value)
+
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+
+    }
+
+
+
+    /* ==========================================
+       START
+    =========================================== */
+
+    loadOrders();
+
+    connectWebSocket();
+
+
+</script>
+
+
+</body>
+
+</html>
